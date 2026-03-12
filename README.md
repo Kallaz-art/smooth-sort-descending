@@ -1,3 +1,6 @@
+Name: Simon Mkala
+Reg no: EB3/67224/23
+
 How the sorting algorithm works (in my own words):
 Smoothsort is an adaptive, in-place variant of heapsort that uses a special "Leonardo heap" structure instead of a standard binary heap. Leonardo heaps are built from trees whose sizes follow Leonardo numbers (1, 1, 3, 5, 9, ...), allowing the heap to be represented implicitly in the array with clever merging of adjacent subtrees. The algorithm works in two intertwined phases: it grows and maintains a forest of these min-heaps (adapted here for descending order) while progressively extracting the current minimum element to the end of the array. A custom heapify (trinkle) operation restores the heap property after merges or extractions using bit-manipulation tricks to navigate the unusual tree shapes. Because the structure only merges trees when their sizes perfectly match consecutive Leonardo numbers, nearly-sorted data requires almost no reordering—operations become constant-time in many cases. This adaptivity is the key advantage over plain heapsort. The final pass is a lightweight bubble adjustment to guarantee full descending order. All work happens directly in the input array with only a handful of integer variables for tracking positions.
 
