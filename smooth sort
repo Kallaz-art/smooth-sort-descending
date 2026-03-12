@@ -1,0 +1,119 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// Leonardo numbers (recursive definition for heap sizes)
+int leonardo(int k) {
+    if (k < 2) {
+        return 1;
+    }
+    return leonardo(k - 1) + leonardo(k - 2) + 1;
+}
+
+// Heapify (trinkle) for the Leonardo heap - adapted for descending order (min-heap logic)
+void heapify(vector<int>& arr, int start, int end, long long& comparisons, long long& swaps) {
+    int i = start;
+    int j = 0;
+    int k = 0;
+
+    // Compute position using bit manipulation for Leonardo tree structure
+    while (k < end - start + 1) {
+        if (k & 0xAAAAAAAA) {
+            j = j + i;
+            i = i >> 1;
+        } else {
+            i = i + j;
+            j = j >> 1;
+        }
+        k = k + 1;
+    }
+
+    while (i > 0) {
+        j = j >> 1;
+        k = i + j;
+        while (k < end) {
+            comparisons++;  // Count element comparison
+            if (arr[k] < arr[k - i]) {  // Flipped for descending (min-heap behavior)
+                break;
+            }
+            swaps++;
+            swap(arr[k], arr[k - i]);
+            k = k + i;
+        }
+        i = j;
+    }
+}
+
+// Smoothsort implementation (in-place, no built-in sort functions used)
+void smooth_sort(vector<int>& arr, long long& comparisons, long long& swaps) {
+    int n = arr.size();
+    if (n <= 1) return;
+
+    int p = n - 1;
+    int q = p;
+    int r = 0;
+
+    // Build/extract phase: maintain Leonardo heap and extract elements
+    while (p > 0) {
+        if ((r & 0x03) == 0) {
+            heapify(arr, r, q, comparisons, swaps);
+        }
+
+        if (leonardo(r) == p) {
+            r = r + 1;
+        } else {
+            r = r - 1;
+            q = q - leonardo(r);
+            heapify(arr, r, q, comparisons, swaps);
+            q = r - 1;
+            r = r + 1;
+        }
+
+        // Extract: swap root with position p (counts as a swap)
+        swaps++;
+        swap(arr[0], arr[p]);
+        p = p - 1;
+    }
+
+    // Final adjustment pass to fully enforce descending order (bubble larger elements left)
+    for (int i = 0; i < n - 1; i++) {
+        int j = i + 1;
+        while (j > 0) {
+            comparisons++;  // Count element comparison
+            if (!(arr[j] > arr[j - 1])) {  // Flipped for descending
+                break;
+            }
+            swaps++;
+            swap(arr[j], arr[j - 1]);
+            j = j - 1;
+        }
+    }
+}
+
+int main() {
+    // Accept input: first the size n, then n integers
+    int n;
+    cin >> n;
+    vector<int> arr(n);
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    long long comparisons = 0;
+    long long swaps = 0;
+
+    // Perform smoothsort (descending order)
+    smooth_sort(arr, comparisons, swaps);
+
+    // Output results
+    cout << "Sorted list (descending): ";
+    for (int x : arr) {
+        cout << x << " ";
+    }
+    cout << endl;
+    cout << "Total comparisons performed: " << comparisons << endl;
+    cout << "Total swaps performed: " << swaps << endl;
+
+    return 0;
+}
